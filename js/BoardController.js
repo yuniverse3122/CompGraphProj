@@ -41,5 +41,5 @@ function initEngine() {
 
     scene.add(camera);
 
-    containerEl.appendChild(rendere.domElement);
+    containerEl.appendChild(renderer.domElement);
 }
