@@ -21,7 +21,7 @@ var cameraController;
 
 this.drawBoard = function () {
     initEngine();
-    initObject(function () {
+    initObjects(function () {
         onAnimationFrame();
     });
 }
@@ -47,7 +47,7 @@ function initEngine() {
     containerEl.appendChild(renderer.domElement);
 }
 
-function initObject(callback) {
+function initObjects(callback) {
     var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50));
     scene.add(cube);
 
