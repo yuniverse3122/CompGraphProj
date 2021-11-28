@@ -21,7 +21,10 @@ var cameraController;
 
 this.drawBoard = function () {
     initEngine();
-};
+    initObject(function () {
+        onAnimationFrame();
+    });
+}
 
 function initEngine() {
     var viewWidth = containerEl.offsetWidth;
@@ -42,4 +45,19 @@ function initEngine() {
     scene.add(camera);
 
     containerEl.appendChild(renderer.domElement);
+}
+
+function initObject(callback) {
+    var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50));
+    scene.add(cube);
+
+    callback();
+}
+
+function onAnimationFrame() {
+    requestAnimationFrame(onAnimationFrame);
+
+    cameraController.update();
+    
+    renderer.render(scene, camera);
 }
