@@ -7,6 +7,27 @@ CHECKERS.BoardController = function (options) {
 
     var assetsUrl = options.assetsUrl || '';
 
+<<<<<<< HEAD
+    this.drawBoard = function () {
+        console.log('drawBoard');
+    };
+    assetsURL: options.assetsURL || '';
+
+    var renderer;
+    var scene;
+    var camera;
+    var cameraController;
+};
+
+
+
+this.drawBoard = function () {
+    initEngine();
+}
+initObjects(function () {
+        onAnimationFrame();
+    });
+=======
     assetsUrl: options.assetsUrl || '';
 
     var renderer;
@@ -20,6 +41,7 @@ CHECKERS.BoardController = function (options) {
             onAnimationFrame();
         });
     };
+>>>>>>> 246a4fab67abf13e8a12b10ad16a420f8b8d14e1
 
     function initEngine() {
         var viewWidth = containerEl.offsetWidth;
