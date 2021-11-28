@@ -10,21 +10,22 @@ CHECKERS.BoardController = function (options) {
     this.drawBoard = function () {
         console.log('drawBoard');
     };
+    assetsURL: options.assetsURL || '';
+
+    var renderer;
+    var scene;
+    var camera;
+    var cameraController;
 };
 
-assetsURL: options.assetsURL || '';
 
-var renderer;
-var scene;
-var camera;
-var cameraController;
 
 this.drawBoard = function () {
     initEngine();
-    initObjects(function () {
+}
+initObjects(function () {
         onAnimationFrame();
     });
-}
 
 function initEngine() {
     var viewWidth = containerEl.offsetWidth;
