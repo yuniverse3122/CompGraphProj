@@ -26,11 +26,12 @@ CHECKERS.BoardController = function (options) {
         var viewHeight = containerEl.offsetHeight;
     
         renderer = new THREE.WebGLRenderer({
-            antialias: true
+            antialias: true,
+            alpha:true
         });
     
         renderer.setSize(viewWidth, viewHeight);
-    
+        renderer.setClearColor(0xff0000,0);
         scene = new THREE.Scene();
     
         camera = new THREE.PerspectiveCamera(35, viewWidth / viewHeight, 1, 1000);
@@ -45,14 +46,16 @@ CHECKERS.BoardController = function (options) {
     function initObjects(callback) {
         const material = new THREE.MeshBasicMaterial({
             color: 0x00FF00,
-            wireframe: true,
+            //wireframe: true,
           });
 
 
-
-        var cube = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), material);
+        const geometry = new THREE.CubeGeometry(50, 50, 50);
+        const cube = new THREE.EdgesGeometry(geometry);
+        const line = new THREE.LineSegments( cube, new THREE.LineBasicMaterial({color: 0x0044ff}));
         //var cube = new THREE.CubeGeometry(50, 50, 50);
-        scene.add(cube);
+        
+        scene.add(line);
     
         callback();
     }
