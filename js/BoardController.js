@@ -22,12 +22,12 @@ CHECKERS.BoardController = function (options) {
     var squareSize = 10;
 
 
-    this.drawBoard = function (callback) {
+    this.drawBoard = function () {
         initEngine();
         initLights();
         initMaterials();
 
-        initObjects(function () {
+        initObjects(function (callback) {
             onAnimationFrame();
 
             callback();
