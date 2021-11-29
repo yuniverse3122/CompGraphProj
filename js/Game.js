@@ -7,14 +7,17 @@ CHECKERS.Game = function (options) {
 
     var boardController = null;
 
+
     function init() {
         boardController = new CHECKERS.BoardController({
             containerEl: options.containerEl,
-            assetsURL: options.assetsURL
+            assetsUrl: options.assetsUrl
         });
 
         boardController.drawBoard();
     }
+
+
 
     init();
 };
