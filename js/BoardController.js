@@ -57,7 +57,7 @@ CHECKERS.BoardController = function (options) {
     this.addPiece = function (piece) {
         var pieceMesh = new THREE.Mesh(pieceGeometry);
         var pieceObjGroup = new THREE.Object3D();
-        
+        pieceMesh.name = "pieceMesh";
         if (piece.color === CHECKERS.WHITE) {
             pieceObjGroup.color = CHECKERS.WHITE;
             pieceMesh.material = materials.whitePieceMaterial;
@@ -240,6 +240,8 @@ CHECKERS.BoardController = function (options) {
         // black piece material
         materials.blackPieceMaterial = new THREE.MeshLambertMaterial( { color: 0x242424, shininess: 5 } );
     
+        materials.selectedPieceMaterial = new THREE.MeshLambertMaterial({color: 0x00FF00});
+
         // pieces shadow plane material
         materials.pieceShadowPlane = new THREE.MeshBasicMaterial({
             transparent: true,
@@ -357,7 +359,8 @@ CHECKERS.BoardController = function (options) {
             } else {
                 if (callbacks.pieceCanDrop && callbacks.pieceCanDrop(selectedPiece.boardPos, toBoardPos, selectedPiece.obj.color)) {
                     instance.movePiece(selectedPiece.boardPos, toBoardPos);
-    
+                    selectedPiece.obj.getObjectByName("pieceMesh").material = selectedPiece.origMat;
+                    rotateCamera();
                     if (callbacks.pieceDropped) {
                         callbacks.pieceDropped(selectedPiece.boardPos, toBoardPos, selectedPiece.obj.color);
                     }
@@ -454,6 +457,10 @@ CHECKERS.BoardController = function (options) {
         selectedPiece.boardPos = boardPos;
         selectedPiece.obj = board[ boardPos[0] ][ boardPos[1] ];
         selectedPiece.origPos = selectedPiece.obj.position.clone();
+        
+        selectedPiece.origMat = selectedPiece.obj.getObjectByName("pieceMesh").material.clone();   
+        selectedPiece.obj.getObjectByName("pieceMesh").material = materials.selectedPieceMaterial;
+        
     
         return true;
     }
@@ -465,6 +472,7 @@ CHECKERS.BoardController = function (options) {
     
         selectedPiece.obj.position = selectedPiece.origPos;
         selectedPiece.obj.children[0].position.y = 0;
+        selectedPiece.obj.getObjectByName("pieceMesh").material = selectedPiece.origMat;
     
         selectedPiece = null;
     }
@@ -478,10 +486,22 @@ CHECKERS.BoardController = function (options) {
             selectedPiece.obj.position.z = mouse3D.z;
     
             // lift piece
+            
             selectedPiece.obj.children[0].position.y = 0.75;
         }
     }
-    
+
+    // funcion to rotate camera 180 degrees or pi radians
+    async function rotateCamera() {
+        var rotated = 0;
+        
+        while(rotated <= Math.PI){
+            rotated += 2 * Math.PI / 60 / 60 * 12;
+            cameraController.rotateLeft();
+            // change the 5 below or the 12 above to change the speed of rotation
+            await new Promise(r => setTimeout(r, 4));
+        }        
+    }
 };
 
 
