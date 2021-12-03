@@ -43,12 +43,13 @@ CHECKERS.BoardController = function (options) {
         initEngine();
         initLights();
         initMaterials();
-
+        
         initObjects(function () {
             onAnimationFrame();
 
             callback();
         });
+        
 
         initListeners();
     };
@@ -56,7 +57,7 @@ CHECKERS.BoardController = function (options) {
     this.addPiece = function (piece) {
         var pieceMesh = new THREE.Mesh(pieceGeometry);
         var pieceObjGroup = new THREE.Object3D();
-        //
+        
         if (piece.color === CHECKERS.WHITE) {
             pieceObjGroup.color = CHECKERS.WHITE;
             pieceMesh.material = materials.whitePieceMaterial;
@@ -125,42 +126,102 @@ CHECKERS.BoardController = function (options) {
 
         scene = new THREE.Scene();
     
-        camera = new THREE.PerspectiveCamera(35, viewWidth / viewHeight, 1, 1000);
-        camera.position.set(squareSize * 4,120,150);
+        camera = new THREE.PerspectiveCamera(45, viewWidth / viewHeight, 1, 1000);
+        camera.position.set(squareSize * 25,100,170);
         cameraController = new THREE.OrbitControls(camera, containerEl);
         cameraController.center = new THREE.Vector3(squareSize * 4, 0, squareSize * 4);
+
+        
+        var loader = new THREE.OBJMTLLoader();
+        loader.addEventListener ('load', function (event) {
+            　　var object = event.content;
+                object.scale.set(3,3,3);
+            　  object.position.y = -70;
+                object.position.x = 1021;
+                object.position.z = -770;
+                scene.add (object);
+            　　});
+        loader.load('3d_assets/newCar.obj','3d_assets/newCar.mtl', {side: THREE.Backside});
+    
+
+        // Add stars
+        function addStar(){
+            const geometry = new THREE.SphereGeometry(.5, 24, 24);
+            const material = new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true});
+            const star = new THREE.Mesh( geometry, material );
+          
+            const [x, y, z] = Array(3).fill().map(() => THREE.Math.randFloatSpread(200));
+            
+            star.position.set(x+50,y,z+50);
+            
+            scene.add(star);
+        }
+        
+        Array(200).fill().forEach(addStar);
+
+        // Add sun
+        const sunTexture = new THREE.ImageUtils.loadTexture('3d_assets/2k_sun.jpg');
+        //sunTexture.minFilter = THREE.LinearFilter;
+        const sun = new THREE.Mesh(
+        new THREE.SphereGeometry(20, 32, 32),
+        new THREE.MeshBasicMaterial({
+            map: sunTexture,
+            //normalMap: normalTexture
+        })
+        );
+        sun.position.x = squareSize * 10 + 20;
+        sun.position.y = 45;
+        sun.position.z = squareSize * 18 + 10;
+
+        scene.add(sun);
+
+        // Add moon
+        const moonTexture = new THREE.ImageUtils.loadTexture('3d_assets/2k_moon.jpg');
+        //sunTexture.minFilter = THREE.LinearFilter;
+        const moon = new THREE.Mesh(
+        new THREE.SphereGeometry(5, 32, 32),
+        new THREE.MeshLambertMaterial({
+            map: moonTexture,
+            //normalMap: normalTexture
+        })
+        );
+        moon.position.x = -10;
+        moon.position.y = 45;
+        moon.position.z = -60;
+
+        scene.add(moon);
 
         scene.add(camera);
     
         containerEl.appendChild(renderer.domElement);
     }
 
+
     
     
     function initLights() {
         // top light
-        lights.topLight = new THREE.PointLight(0xFFFFFF, 1, 100000);
-        lights.topLight.position.set(squareSize * 4, 150, squareSize * 20);
+        //lights.topLight = new THREE.PointLight(0xFFFFFF, 1, 100000);
+        //lights.topLight.position.set(squareSize * 4, 150, squareSize * 20);
         //lights.topLight.intensity = 1.0;
+
+        const pointLight = new THREE.PointLight(0xffffff);
+        pointLight.intensity = 2.5;
+        pointLight.position.set(squareSize * 10 + 20,45,squareSize * 18 + 10);
+
+        //const ambientLight = new THREE.AmbientLight(0xffffff);
+
+        scene.add(pointLight /*, ambientLight*/);
     
         // add the lights in the scene
-        scene.add(lights.topLight);
+        //scene.add(lights.topLight);
     }
     
     function initMaterials() {
-        // board material
         
+        // board material
         materials.boardMaterial = /*new THREE.MeshStandardMaterial( { color: 0x00c414 } );*/new THREE.MeshLambertMaterial({
             map: THREE.ImageUtils.loadTexture(assetsUrl + 'board_texture.jpg')
-        });
-        
-
-       
-    
-        // ground material
-        materials.groundMaterial = new THREE.MeshBasicMaterial({
-            transparent: true,
-            map: THREE.ImageUtils.loadTexture(assetsUrl + 'ground.png')
         });
     
         // dark square material
@@ -175,27 +236,19 @@ CHECKERS.BoardController = function (options) {
     
         // white piece material
         materials.whitePieceMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff } );
-
-        /*new THREE.MeshPhongMaterial({
-            color: 0xe9e4bd,
-            shininess: 20
-        });*/
     
         // black piece material
         materials.blackPieceMaterial = new THREE.MeshLambertMaterial( { color: 0x242424, shininess: 5 } );
-        /*new THREE.MeshPhongMaterial({
-            color: 0x9f2200,
-            shininess: 20
-        });*/
     
         // pieces shadow plane material
         materials.pieceShadowPlane = new THREE.MeshBasicMaterial({
             transparent: true,
-            map: THREE.ImageUtils.loadTexture(assetsUrl + 'piece_shadow.png')
+            map: THREE.ImageUtils.loadTexture(assetsUrl + 'checkersPieceShadow.png')
         });
     }
     
     function initObjects(callback) {
+        
         var loader = new THREE.JSONLoader();
         var totalObjectsToLoad = 2; // board + the piece
         var loadedObjects = 0; // count the loaded pieces
@@ -209,16 +262,15 @@ CHECKERS.BoardController = function (options) {
             }
         }
         
-            // load board
+        // load board
         loader.load(assetsUrl + 'board.js', function (geom) {
-            // load board
             boardModel = new THREE.Mesh(geom, materials.boardMaterial);
             boardModel.position.y = -0.02;
 
             scene.add(boardModel);
         
             checkLoad();
-        });
+        }); 
 
         // load piece
         loader.load(assetsUrl + 'piece.js', function (geometry) {
@@ -230,12 +282,6 @@ CHECKERS.BoardController = function (options) {
         
             checkLoad();
         });
-        // add ground
-        groundModel = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 1, 1), materials.groundMaterial);
-        groundModel.position.set(squareSize * 4, -1.52, squareSize * 4);
-        groundModel.rotation.x = -90 * Math.PI / 180;
-        //
-        scene.add(groundModel);
 
         // create the board squares
         var squareMaterial;
@@ -268,7 +314,6 @@ CHECKERS.BoardController = function (options) {
                 scene.add(square);
             }
         }
-
     }
 
     function initListeners() {

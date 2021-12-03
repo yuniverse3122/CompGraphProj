@@ -1,6 +1,5 @@
 (function () {
     'use strict';
-
     var game = new CHECKERS.Game({
         containerEl: document.getElementById('boardContainer'),
         
