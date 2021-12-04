@@ -180,8 +180,26 @@ CHECKERS.Game = function (options) {
                 board[fromRow + 1][fromCol - 1] = 0;
             }
         }
-    
-        // change turn
+
+        var whiteCt = 0;
+        var blackCt = 0;
+        for(let row = 0; row < 8; row++){
+            for(let col = 0; col < 8; col++){
+                if(board[row][col].color == CHECKERS.WHITE)
+                    whiteCt++;
+                if(board[row][col].color == CHECKERS.BLACK)
+                    blackCt++;
+            }
+        }
+        if(whiteCt == 0){
+            console.log("Black Wins!");
+            pop.open("Black Wins!!", "congrats");
+        }
+        if(blackCt == 0){
+            console.log("White Wins!")
+            pop.open("White Wins!!", "congrats");
+        }
+            // change turn
         if (color === CHECKERS.WHITE) {
             colorTurn = CHECKERS.BLACK;
         } else {

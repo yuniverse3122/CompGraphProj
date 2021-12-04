@@ -360,7 +360,6 @@ CHECKERS.BoardController = function (options) {
                 if (callbacks.pieceCanDrop && callbacks.pieceCanDrop(selectedPiece.boardPos, toBoardPos, selectedPiece.obj.color, selectedPiece.obj.king)) {
                     instance.movePiece(selectedPiece.boardPos, toBoardPos);
                     selectedPiece.obj.getObjectByName("pieceMesh").material = selectedPiece.origMat;
-                    console.log(toBoardPos[0], toBoardPos[1]);
                     
                     rotateCamera();
                     if (callbacks.pieceDropped) {
