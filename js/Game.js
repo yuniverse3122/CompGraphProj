@@ -74,37 +74,41 @@ CHECKERS.Game = function (options) {
         var toRow = to[0];
         var toCol = to[1];
     
-        if (board[toRow][toCol] !== 0) { // a piece can't be dropped on an existing piece
+        // a piece can only move to a spot with no other spots
+        if (board[toRow][toCol] !== 0) { 
             return false;
         }
 
         if(king){
             console.log("I AM TRYING TO MOVE THIS DAMN PIECE");
-            // checks for one square move in left or right direction
+            // a king can move in any direction
             if ((toRow === fromRow + 1 || toRow === fromRow -1) && (toCol === fromCol - 1 || toCol === fromCol + 1)) {
                 return true;
             }
-    
-            // checks for 2 squares move (jumping over a piece)
+
+            // if the player is trying to make a 2 space move, ensure it is a jump
             if (toRow === fromRow + 2 || toRow === fromRow - 2) {
-                console.log("this is before the error?");
-                console.log(board[fromRow+1][fromCol-1]);
-                console.log("this is after");
 
-                if (toCol === fromCol - 2 && board[fromRow - 1][fromCol - 1] !== 0 && board[fromRow - 1][fromCol - 1].color != color) {
-                    return true;
+                // When checking if a piece can be jumped, only check the possible moves.
+                if(fromRow != 0 && fromCol != 0){
+                    if (toCol === fromCol - 2 && board[fromRow - 1][fromCol - 1] !== 0 && board[fromRow - 1][fromCol - 1].color != color) {
+                        return true;
+                    }
                 }
-    
-                if (toCol === fromCol + 2 && board[fromRow - 1][fromCol + 1] !== 0 && board[fromRow - 1][fromCol + 1].color != color) {
-                    return true;
+                if(fromRow != 0 && fromCol != 7){
+                    if (toCol === fromCol + 2 && board[fromRow - 1][fromCol + 1] !== 0 && board[fromRow - 1][fromCol + 1].color != color) {
+                        return true;
+                    }
                 }
-
-                if (toCol === fromCol - 2 && board[fromRow + 1][fromCol - 1] !== 0 && board[fromRow + 1][fromCol - 1].color != color) {
-                    return true;
+                if(fromRow != 7 && fromCol != 0){
+                    if (toCol === fromCol - 2 && board[fromRow + 1][fromCol - 1] !== 0 && board[fromRow + 1][fromCol - 1].color != color) {
+                        return true;
+                    }
                 }
-    
-                if (toCol === fromCol + 2 && board[fromRow + 1][fromCol + 1] !== 0 && board[fromRow + 1][fromCol + 1].color != color) {
-                    return true;
+                if(fromRow != 7 && fromCol != 7){
+                    if (toCol === fromCol + 2 && board[fromRow + 1][fromCol + 1] !== 0 && board[fromRow + 1][fromCol + 1].color != color) {
+                        return true;
+                    }
                 }
             }
         } else if (color === CHECKERS.BLACK) {

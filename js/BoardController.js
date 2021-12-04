@@ -360,20 +360,21 @@ CHECKERS.BoardController = function (options) {
                 if (callbacks.pieceCanDrop && callbacks.pieceCanDrop(selectedPiece.boardPos, toBoardPos, selectedPiece.obj.color, selectedPiece.obj.king)) {
                     instance.movePiece(selectedPiece.boardPos, toBoardPos);
                     selectedPiece.obj.getObjectByName("pieceMesh").material = selectedPiece.origMat;
-                    console.log(toBoardPos[0]);
-                    if(selectedPiece.obj.color === CHECKERS.WHITE && toBoardPos[0] == 0){
-                        console.log("KING");
-                        selectedPiece.obj.king = true;
-                        selectedPiece.obj.getObjectByName("pieceMesh").scale.set(1,4,1);
-                    }
-                    if(selectedPiece.obj.color === CHECKERS.BLACK && toBoardPos[0] == 7){
-                        console.log("KING");
-                        selectedPiece.obj.king = true;
-                        selectedPiece.obj.getObjectByName("pieceMesh").scale.set(1,4,1);
-                    }
+                    console.log(toBoardPos[0], toBoardPos[1]);
+                    
                     rotateCamera();
                     if (callbacks.pieceDropped) {
                         callbacks.pieceDropped(selectedPiece.boardPos, toBoardPos, selectedPiece.obj.color);
+                        if(selectedPiece.obj.color === CHECKERS.WHITE && toBoardPos[0] == 0 && !selectedPiece.obj.king){
+                            console.log("KING");
+                            selectedPiece.obj.king = true;
+                            selectedPiece.obj.getObjectByName("pieceMesh").scale.set(1,4,1);
+                        }
+                        if(selectedPiece.obj.color === CHECKERS.BLACK && toBoardPos[0] == 7 && !selectedPiece.obj.king){
+                            console.log("KING");
+                            selectedPiece.obj.king = true;
+                            selectedPiece.obj.getObjectByName("pieceMesh").scale.set(1,4,1);
+                        }
                     }
     
                     selectedPiece = null;
