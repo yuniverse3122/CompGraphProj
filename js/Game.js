@@ -64,7 +64,7 @@ CHECKERS.Game = function (options) {
         }
     }
 
-    function isMoveLegal(from, to, color) {
+    function isMoveLegal(from, to, color, king) {
         if (color !== colorTurn) {
             return false;
         }
@@ -77,8 +77,37 @@ CHECKERS.Game = function (options) {
         if (board[toRow][toCol] !== 0) { // a piece can't be dropped on an existing piece
             return false;
         }
+
+        if(king){
+            console.log("I AM TRYING TO MOVE THIS DAMN PIECE");
+            // checks for one square move in left or right direction
+            if ((toRow === fromRow + 1 || toRow === fromRow -1) && (toCol === fromCol - 1 || toCol === fromCol + 1)) {
+                return true;
+            }
     
-        if (color === CHECKERS.BLACK) {
+            // checks for 2 squares move (jumping over a piece)
+            if (toRow === fromRow + 2 || toRow === fromRow - 2) {
+                console.log("this is before the error?");
+                console.log(board[fromRow+1][fromCol-1]);
+                console.log("this is after");
+
+                if (toCol === fromCol - 2 && board[fromRow - 1][fromCol - 1] !== 0 && board[fromRow - 1][fromCol - 1].color != color) {
+                    return true;
+                }
+    
+                if (toCol === fromCol + 2 && board[fromRow - 1][fromCol + 1] !== 0 && board[fromRow - 1][fromCol + 1].color != color) {
+                    return true;
+                }
+
+                if (toCol === fromCol - 2 && board[fromRow + 1][fromCol - 1] !== 0 && board[fromRow + 1][fromCol - 1].color != color) {
+                    return true;
+                }
+    
+                if (toCol === fromCol + 2 && board[fromRow + 1][fromCol + 1] !== 0 && board[fromRow + 1][fromCol + 1].color != color) {
+                    return true;
+                }
+            }
+        } else if (color === CHECKERS.BLACK) {
             // checks for one square move in left or right direction
             if (toRow === fromRow + 1 && (toCol === fromCol - 1 || toCol === fromCol + 1)) {
                 return true;

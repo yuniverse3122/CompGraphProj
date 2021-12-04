@@ -20,7 +20,6 @@ CHECKERS.BoardController = function (options) {
 
     var pieceGeometry = null;
     var boardModel;
-    var groundModel;
 
     var squareSize = 10;
 
@@ -57,6 +56,7 @@ CHECKERS.BoardController = function (options) {
     this.addPiece = function (piece) {
         var pieceMesh = new THREE.Mesh(pieceGeometry);
         var pieceObjGroup = new THREE.Object3D();
+        pieceObjGroup.king = false;
         pieceMesh.name = "pieceMesh";
         if (piece.color === CHECKERS.WHITE) {
             pieceObjGroup.color = CHECKERS.WHITE;
@@ -127,7 +127,7 @@ CHECKERS.BoardController = function (options) {
         scene = new THREE.Scene();
     
         camera = new THREE.PerspectiveCamera(45, viewWidth / viewHeight, 1, 1000);
-        camera.position.set(squareSize * 25,100,170);
+        camera.position.set(squareSize * 4,120,250);
         cameraController = new THREE.OrbitControls(camera, containerEl);
         cameraController.center = new THREE.Vector3(squareSize * 4, 0, squareSize * 4);
 
@@ -357,9 +357,20 @@ CHECKERS.BoardController = function (options) {
             if (toBoardPos[0] === selectedPiece.boardPos[0] && toBoardPos[1] === selectedPiece.boardPos[1]) {
                 deselectPiece();
             } else {
-                if (callbacks.pieceCanDrop && callbacks.pieceCanDrop(selectedPiece.boardPos, toBoardPos, selectedPiece.obj.color)) {
+                if (callbacks.pieceCanDrop && callbacks.pieceCanDrop(selectedPiece.boardPos, toBoardPos, selectedPiece.obj.color, selectedPiece.obj.king)) {
                     instance.movePiece(selectedPiece.boardPos, toBoardPos);
                     selectedPiece.obj.getObjectByName("pieceMesh").material = selectedPiece.origMat;
+                    console.log(toBoardPos[0]);
+                    if(selectedPiece.obj.color === CHECKERS.WHITE && toBoardPos[0] == 0){
+                        console.log("KING");
+                        selectedPiece.obj.king = true;
+                        selectedPiece.obj.getObjectByName("pieceMesh").scale.set(1,4,1);
+                    }
+                    if(selectedPiece.obj.color === CHECKERS.BLACK && toBoardPos[0] == 7){
+                        console.log("KING");
+                        selectedPiece.obj.king = true;
+                        selectedPiece.obj.getObjectByName("pieceMesh").scale.set(1,4,1);
+                    }
                     rotateCamera();
                     if (callbacks.pieceDropped) {
                         callbacks.pieceDropped(selectedPiece.boardPos, toBoardPos, selectedPiece.obj.color);
@@ -456,6 +467,9 @@ CHECKERS.BoardController = function (options) {
         selectedPiece = {};
         selectedPiece.boardPos = boardPos;
         selectedPiece.obj = board[ boardPos[0] ][ boardPos[1] ];
+        if(selectedPiece.obj.king){
+            console.log("this is a king piece");
+        }
         selectedPiece.origPos = selectedPiece.obj.position.clone();
         
         selectedPiece.origMat = selectedPiece.obj.getObjectByName("pieceMesh").material.clone();   
