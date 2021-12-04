@@ -4,12 +4,9 @@ var CHECKERS = {
 };
 
 CHECKERS.Game = function (options) {
-    'use strict';
-
     options = options || {};
-
-    var boardController = null;
-
+    var gameBoard = null;
+    // internal board - used for game logic
     var board = [
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -20,51 +17,64 @@ CHECKERS.Game = function (options) {
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0]
     ];
-
     var colorTurn = CHECKERS.WHITE;
 
+
+
+
     function init() {
-        boardController = new CHECKERS.BoardController({
+        gameBoard = new CHECKERS.Board({
             containerEl: options.containerEl,
             assetsUrl: options.assetsUrl,
             callbacks: {
-                pieceCanDrop: isMoveLegal,
-                pieceDropped: pieceMoved
+                validMove: isMoveValid,
+                pieceMoved: pieceMoved
             }
         });
 
-        boardController.drawBoard(onBoardReady);
+        gameBoard.drawBoard(addPieces);
     }
 
-    function onBoardReady() {
+
+
+
+    function addPieces() {
         var row, col, piece;
 
         for(row = 0; row < board.length; row++){
             for(col = 0; col < board[row].length; col++){
-                if (row < 3 && (row + col) % 2) { // black piece
+                // add the black pieces
+                if (row < 3 && (row + col) % 2) { 
 	                piece = {
 	                    color: CHECKERS.BLACK,
 	                    pos: [row, col]
 	                };
-	            } else if (row > 4 && (row + col) % 2) { // white piece
+                // add the white pieces
+	            } else if (row > 4 && (row + col) % 2) {
 	                piece = {
 	                    color: CHECKERS.WHITE,
 	                    pos: [row, col]
 	                };
-	            } else { // empty square
+	            } else {
+                    // empty spot on board
 	                piece = 0;
 	            }
 
                 board[row][col] = piece;
 
                 if(piece){
-                    boardController.addPiece(piece);
+                    // put the 3d piece model on the board
+                    gameBoard.addPiece(piece);
                 }
             }
         }
     }
 
-    function isMoveLegal(from, to, color, king) {
+
+
+
+    function isMoveValid(from, to, color, king) {
+        // only let the player whose turn it is move a piece
         if (color !== colorTurn) {
             return false;
         }
@@ -74,13 +84,12 @@ CHECKERS.Game = function (options) {
         var toRow = to[0];
         var toCol = to[1];
     
-        // a piece can only move to a spot with no other spots
+        // a piece can only move to a spot with no other pieces
         if (board[toRow][toCol] !== 0) { 
             return false;
         }
 
         if(king){
-            console.log("I AM TRYING TO MOVE THIS DAMN PIECE");
             // a king can move in any direction
             if ((toRow === fromRow + 1 || toRow === fromRow -1) && (toCol === fromCol - 1 || toCol === fromCol + 1)) {
                 return true;
@@ -112,45 +121,39 @@ CHECKERS.Game = function (options) {
                 }
             }
         } else if (color === CHECKERS.BLACK) {
-            // checks for one square move in left or right direction
+            // player is trying to move one spot to the left or right
             if (toRow === fromRow + 1 && (toCol === fromCol - 1 || toCol === fromCol + 1)) {
                 return true;
             }
     
-            // checks for 2 squares move (jumping over a piece)
+            // player is trying to jump a piece
             if (toRow === fromRow + 2) {
-                // left direction
                 if (toCol === fromCol - 2 && board[fromRow + 1][fromCol - 1] !== 0 && board[fromRow + 1][fromCol - 1].color != color) {
                     return true;
                 }
-    
-                // right direction
                 if (toCol === fromCol + 2 && board[fromRow + 1][fromCol + 1] !== 0 && board[fromRow + 1][fromCol + 1].color != color) {
                     return true;
                 }
             }
         } else if (color === CHECKERS.WHITE) {
-            // checks for one square move in left or right direction
             if (toRow === fromRow - 1 && (toCol === fromCol - 1 || toCol === fromCol + 1)) {
                 return true;
             }
-    
-            // checks for 2 squares move (jumping over a piece)
             if (toRow === fromRow - 2) {
-                // left direction
                 if (toCol === fromCol - 2 && board[fromRow - 1][fromCol - 1] !== 0 && board[fromRow - 1][fromCol - 1].color != color) {
                     return true;
                 }
-    
-                // right direction
                 if (toCol === fromCol + 2 && board[fromRow - 1][fromCol + 1] !== 0 && board[fromRow - 1][fromCol + 1].color != color) {
                     return true;
                 }
             }
         }
-    
+        // if none of the if statements return true, this move is not valid
         return false;
     }
+
+
+
 
     function pieceMoved(from, to, color) {
         var fromRow = from[0];
@@ -158,29 +161,33 @@ CHECKERS.Game = function (options) {
         var toRow = to[0];
         var toCol = to[1];
     
+        // move the piece in the board array
         board[toRow][toCol] = board[fromRow][fromCol];
     
+        // set the old spot as empty
         board[fromRow][fromCol] = 0;
     
-        // capture jumped piece
-        if (toRow === fromRow - 2) { // left direction
+        // if they moved over two rows, it was a jump and the captured piece must be removed
+        if (toRow === fromRow - 2) {
             if (toCol === fromCol - 2) {
-                boardController.removePiece(fromRow - 1, fromCol - 1);
+                gameBoard.removePiece(fromRow - 1, fromCol - 1);
                 board[fromRow - 1][fromCol - 1] = 0;
             } else {
-                boardController.removePiece(fromRow - 1, fromCol + 1);
+                gameBoard.removePiece(fromRow - 1, fromCol + 1);
                 board[fromRow - 1][fromCol + 1] = 0;
             }
-        } else if (toRow === fromRow + 2) { // right direction
+        } else if (toRow === fromRow + 2) {
             if (toCol === fromCol + 2) {
-                boardController.removePiece(fromRow + 1, fromCol + 1);
+                gameBoard.removePiece(fromRow + 1, fromCol + 1);
                 board[fromRow + 1][fromCol + 1] = 0;
             } else {
-                boardController.removePiece(fromRow + 1, fromCol - 1);
+                gameBoard.removePiece(fromRow + 1, fromCol - 1);
                 board[fromRow + 1][fromCol - 1] = 0;
             }
         }
 
+        // Check if either side has no pieces left
+        // If one side has no pieces left, the other side wins
         var whiteCt = 0;
         var blackCt = 0;
         for(let row = 0; row < 8; row++){
@@ -199,7 +206,8 @@ CHECKERS.Game = function (options) {
             console.log("White Wins!")
             pop.open("White Wins!!", "congrats");
         }
-            // change turn
+        
+        // switch whose turn it is after moving
         if (color === CHECKERS.WHITE) {
             colorTurn = CHECKERS.BLACK;
         } else {
@@ -207,5 +215,6 @@ CHECKERS.Game = function (options) {
         }
     }
 
+    // start the game
     init();
 };
